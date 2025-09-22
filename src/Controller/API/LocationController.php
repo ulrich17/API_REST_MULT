@@ -79,9 +79,8 @@
                 $datedebutAffichage = $location->getDateFin()->format('d-m-Y');
                 $datefinAffichage = $location->getDateDebut()->format('d-m-Y');
                 $resultat[] = [
-                    'id location' => $location->getId(),
-                    'Nom' => $client->getNom(),
-                    'Prenom' => $client->getPrenom(),
+                    'id_location' => $location->getId(),
+                    'Nom et Prenon' => $client->getNom().' '.$client->getPrenom(),
                     'immatriculation' => $vehicule->getImmatriculation(),
                     'Categorie' => $categorie->getLibelleCategorie(), 
                     'Marque' => $vehicule->getMarque(),
@@ -89,7 +88,7 @@
                     'Couleur' => $vehicule->getCouleur(),
                     'Date debut' => $datedebutAffichage,
                     'Date fin' => $datefinAffichage,
-                    'Nombre de jours restant' =>$nombre_jour.' '.'Jours'
+                    'Nbre_jours' =>$nombre_jour.' '.'Jours'
                     
                 ];
             }
@@ -103,26 +102,38 @@
         public function locationEncours(EntityManagerInterface $em): JsonResponse
         {
             $resultat = [];
-
             $location = $em->getRepository(Location::Class)->findAll();
-            $datedebut = $location->$location->getDatedebut();
-            $datefin = $location->$location->getDatefin();
-
-            // on cherche à determiner la date de fin de location (on fait la soustraction de la datefin-datedebut )
-            
-            $datelimite = $datefin - $datedebut;
-            
-            if($datelimite >0){
-                
-                $resultat = [
-                'id' => $location->getId(),
-                'vehicule' => $location->getIdvehicule(),
-                'idclient' => $location->getIdclient(),
-                'datadebut' => $location->getDatedebut(),
-                'datefin' => $location->$location->getDatefin()
-                ];
+            // On parcours la liste des vehicules disponible à location
+            foreach($location as $value){
+            $datedebut = $value->getDateDebut();
+            $datefin = $value->getDatefin();
+            $vehicule = $value->getVehicule();
+            $client = $value->getClient();
+            // on determine la duréée de location (on fait la soustraction de la datefin-datedebut )
+            $interval = $datefin->diff($datedebut);
+            $nbreJours = $interval->days;
+            // on recupère la date du jour
+            $dateJour = new \DateTime();
+            // On détermine le nombre de jours écoulés
+            $intervalDatedebut_dateJour = $dateJour->diff($datedebut); 
+            $intervalJour_DateDebut_DateJour = $intervalDatedebut_dateJour->days;
+                if($nbreJours > $intervalJour_DateDebut_DateJour){
+                    
+                    $resultat []= [
+                    'id' => $value->getId(),
+                    'Immatriculation du véhicule' => $vehicule->getImmatriculation(),
+                    'Marque' => $vehicule->getMarque(),
+                    'Modèle' => $vehicule->getModele(),
+                    'Nom & Prenom' => $client->getNom().' '.$client->getPrenom(),
+                    'Data debut' => $value->getDateDebut()->format('d-m-Y'),
+                    'Date fin' => $value->getDateFin()->format('d-m-Y'),
+                    'Nombre de jours' => $nbreJours,
+                    'Nombre de jours écoulés' =>$intervalJour_DateDebut_DateJour,
+                    ];
+                }
+               
             }
-            
+             return $this->json($resultat);
         }
        
         #[Route('/api/v1/locations/{id}', name: 'updateLocation', methods: ['PUT'])]
@@ -173,6 +184,7 @@
             }
             return $this->Json($location);
         }
+        // Modification partielle d'une location
         #[Route('/api/v1/locations/{id}', name: 'locationpartiel', methods: ['PATCH'])]
         // Methode pour mettre à jour partiellement une location
         public function locationPartiel(int $id, Request $request, EntityManagerInterface $em): Response

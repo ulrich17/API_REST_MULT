@@ -20,10 +20,7 @@
             if (!$data) {
                 return $this->json(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
             }
-
-            // On crée une maintenance
-
-            $maintenance = new Maintenance();
+            $maintenance = new Maintenance(); // On crée une maintenance
             $maintenance->setIdVehicule($data['idVehicule']);
             $maintenance->setTypeMaintenance($data['typemaintenance']);
             $maintenance->setDescription($data['description']);
@@ -33,15 +30,12 @@
             $maintenance->setKilometrage($data['kilometrage']);
             $maintenance->setTypeAlerte($data['typealerte']); 
             $maintenance->setObservations($data['observations']);
-            // Validation de l'entité
-            $errors = $validator->validate($maintenance);
+            $errors = $validator->validate($maintenance); // Validation de l'entité 
             if (count($errors) > 0) {
                 return $this->json(['errors' => (string) $errors], Response::HTTP_BAD_REQUEST);
             }
-
             $em->persist($maintenance);
             $em->flush();
-
             return $this->json($maintenance, Response::HTTP_CREATED);
         }
         #[Route('/api/v1/maintenances', name: 'listMaintenances', methods: ['GET'])]
@@ -57,14 +51,22 @@
         {
             $maintenancesUrgentes = $em->getRepository(Maintenance::class)->findAll();
             // On initialise un tableau vide
-                $listemaintenance = [];
+            $listemaintenance = [];
             foreach($maintenancesUrgentes as $value){
                 $alerteUrgentes = $value->getTypeAlerte();
                 if($alerteUrgentes =='Critique'){
-                    $listemaintenance[] = $value; 
-                }  
+                    $listemaintenance[] = [
+                       'idvehicule'=> $value->getIdVehicule(), 
+                       'Type'=> $value->getTypeMaintenance(), 
+                       'Description'=> $value->getDescription(), 
+                       'Date planifiée'=> $value->getDatePlanifie()->format('d-m-Y'), 
+                       'Date effectué'=> $value->getDateEffectuee()->format('d-m-Y'), 
+                       'Coût'=> $value->getCout(), 
+                       'Kilometrage'=> $value->getKilometrage(), 
+                       'Type d\'alerte'=> $value->getTypeAlerte(), 
+                    ]; 
+                }
             }
-                
             if(empty($listemaintenance)){
                 return new JsonResponse(
                     ['message' => 'Aucune alarte critique n\'est présente dans la BDD'], 
@@ -98,7 +100,7 @@
 
             $data = json_decode($request->getContent(), true);
             $maintenance->setIdVehicule($data['idVehicule'] ?? $maintenance->getIdVehicule());
-            $maintenance->setDateMaintenance(isset($data['dateMaintenance']) ? new \DateTime($data['dateMaintenance']) : $maintenance->getDateMaintenance());
+            $maintenance->setDateMaintenance(isset($data['dateMaintenance']) ? new \DateTime($data['dateMaintenance']):$maintenance->getDateMaintenance());
             $maintenance->setTypeMaintenance($data['typeMaintenance'] ?? $maintenance->getTypeMaintenance());
             $maintenance->setDescription($data['description'] ?? $maintenance->getDescription());
             $maintenance->setCout($data['cout'] ?? $maintenance->getCout());
@@ -118,21 +120,18 @@
             if (!$maintenance) {
                 return new JsonResponse(['message' => 'Maintenance non trouvée'], Response::HTTP_NOT_FOUND);
             }
-
             $em->remove($maintenance);
             $em->flush();
-
             return new JsonResponse(['message' => 'Maintenance supprimée avec succès'], Response::HTTP_OK);
         }
         // Mise à jour partiel d'une maintenance 
         #[Route('/api/v1/maintenances/{idmaintenance}', name: 'maintenancesPartielle', methods: ['PATCH'])]
-        public function updatePartial(int $idmaintenance, Request $request, EntityManagerInterface $em, MaintenanceRepository $maintenanceRepository): JsonResponse
+        public function updatePartial(int $idmaintenance,Request $request,EntityManagerInterface $em,MaintenanceRepository $maintenanceRepository): JsonResponse
         {
             $maintenance = $maintenanceRepository->find($idmaintenance);
             if (!$maintenance) {
                 return new JsonResponse(['message' => 'Maintenance non trouvée'], Response::HTTP_NOT_FOUND);
             }
-
             $data = json_decode($request->getContent(), true);
             if (isset($data['idVehicule'])) {
                $maintenance->setIdVehicule($data['idVehicule'] ?? $maintenance->getIdVehicule());

@@ -41,7 +41,7 @@ class VehiculeRepository extends ServiceEntityRepository
         return $this->paginator->paginate(
             $this->createQueryBuilder('v')->getQuery(),
             $page,
-            3, // Limite par page
+            10, // Limite par page
             [
                 'distinct' => true,
                 'sortFieldWhitelist' => ['v.id', 'v.immatriculation', 'v.marque']

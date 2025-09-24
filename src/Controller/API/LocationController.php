@@ -231,6 +231,7 @@
             // nombre de jour    
             $nbreJours = $interval->days;
             // on recupère la date du jour
+            //ceci est un test
             $dateJour = new \DateTime();
             // On détermine le nombre de jours écoulés
             $intervalDatedebut_dateJour = $dateJour->diff($datedebut); 

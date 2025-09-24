@@ -3,7 +3,7 @@
     use App\Entity\Vehicule;
     use App\Entity\CategorieVehicule;
     use App\Entity\Maintenance;
-    use APP\Entity\Location;
+    use App\Entity\Location;
     use Doctrine\ORM\Mapping as ORM;
     use App\Entity\CategoriVehicule;
     use App\Repository\VehiculeRepository;

@@ -198,16 +198,65 @@
             if (!$data) {
                 return new JsonResponse(['message' => 'Données invalides'], Response::HTTP_BAD_REQUEST);
             }
-
-            $location->setIdvehicule($data['idvehicule'] ?? $location->getIdvehicule());
+            
+            if(isset($data['idvehicule'])){
+                 $location->setIdvehicule($data['idvehicule'] ?? $location->getIdvehicule());
+            }
+            if(isset($data['idclient'])){
             $location->setIdclient($data['idclient'] ?? $location->getIdclient());
+            }
+            if(isset($data['datedebut'])){
             $location->setDatedebut(isset($data['datedebut']) ? new \DateTime($data['datedebut']) : $location->getDatedebut());
+            }
+            if(isset($data['datefin'])){
             $location->setDatefin(isset($data['datefin']) ? new \DateTime($data['datefin']) : $location->getDatefin());
-           
+            }    
             $em->flush();
 
             return $this->Json($location);
         }   
+
+        // Met à jour le statut d'un véhicule en "disponible" lorsque la période de location est terminée
+        #[Route('/api/v1/locations/{id}/mise-jour-statut-vehciule', name:'updateStatutVehicule', methods:['PATCH'])]
+        public function updateStatutVehicule(int $id, Request $request, EntityManagerInterface $em):Response
+        {
+
+            $location = $em->getRepository(Location::class)->find($id);
+            $data = json_decode($request->getContent(), true);
+            
+            // on récupère la date de début et la date de fin
+            $datedebut = $location->getDateDebut();
+            $datefin = $location->getDateFin();
+            $interval = $datefin->diff($datedebut);
+            // nombre de jour    
+            $nbreJours = $interval->days;
+            // on recupère la date du jour
+            $dateJour = new \DateTime();
+            // On détermine le nombre de jours écoulés
+            $intervalDatedebut_dateJour = $dateJour->diff($datedebut); 
+            $nombre_jour_Ecoule = $intervalDatedebut_dateJour->days;
+            // difference entre nombre de jour de location - nombre de jours écoulé
+            $difnbre =  $nbreJours - $nombre_jour_Ecoule;
+            // on recupère l'id du véhicule
+            $idvehicule = $location->getVehicule()->getId();
+            // On recupère les informations du véhicule en fonction de son id 
+            $vehicule = $em->getRepository(Vehicule::class)->find($idvehicule);
+
+            if( $difnbre > 0 ){
+                return new JsonResponse(
+                    [
+                        'message' => 'Vous ne pouvez pas mettre à jour le statut du véhicule car la location est en cours'
+                    ]
+                    );
+            }
+            $vehicule->setStatut($data['statut']?? $vehicule->getStatut());
+            $em->persist($vehicule);
+            $em->flush();
+            // On renvoie un message à l'utilisateur
+            return new JsonResponse(['message'=> 'Mise à jour du statut du vehicule immatriculé'.' '.$vehicule->getImmatriculation().' '.'effectuée avec succès']);
+            return $this->Json($vehicule);
+        }
+
     }
     
 ?>

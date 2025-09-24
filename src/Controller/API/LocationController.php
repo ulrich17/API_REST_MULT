@@ -220,7 +220,7 @@
         #[Route('/api/v1/locations/{id}/mise-jour-statut-vehciule', name:'updateStatutVehicule', methods:['PATCH'])]
         public function updateStatutVehicule(int $id, Request $request, EntityManagerInterface $em):Response
         {
-
+            // On recupère la location correspondante en fonction de son id
             $location = $em->getRepository(Location::class)->find($id);
             $data = json_decode($request->getContent(), true);
             

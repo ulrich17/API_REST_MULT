@@ -12,19 +12,10 @@
 
     class SinistreController extends AbstractController
     {
-        #[Route('/sinistre', name: 'app_sinistre')]
-        public function index(): Response
-        {
-            return $this->render('sinistre/index.html.twig', [
-                'controller_name' => 'SinistreController',
-            ]);
-        }
-
         #[Route('/api/v1/sinistres', name: 'createsinistre', methods: ['POST'])]
         public function create(Request $request, EntityManagerInterface $em): Response
         {
             $data = json_decode($request->getContent(), true);
-
             try {
                 $sinistre = new Sinistre();
                 $sinistre->setIdVehicule($data['idVehicule']);
@@ -38,14 +29,14 @@
 
                 $em->persist($sinistre);
                 $em->flush();
-
                 return new Response('Sinistre créé avec succès', Response::HTTP_CREATED);
 
             } catch (UniqueConstraintViolationException $e) {
-                return $this->json(['error' => 'Vous ne pouvez pas enregistrer ce sinistre, car ce sinistre existe déjà dans la base de données'], Response::HTTP_BAD_REQUEST);
+                return $this->json(
+                    ['error' => 'Vous ne pouvez pas enregistrer ce sinistre, car ce sinistre existe déjà dans la base de données'], 
+                         Response::HTTP_BAD_REQUEST
+                    );
             }
-          
-           
         }
         #[Route('/api/v1/sinistres', name: 'listsinistres', methods: ['GET'])]
         public function list(EntityManagerInterface $em): Response
@@ -118,6 +109,7 @@
 
             return $this->json(['message' => 'Sinistre supprimé avec succès'], Response::HTTP_OK);
         }
+        // Mise à jour partielle
         #[Route('/api/v1/sinistres/{id}', name: 'patchsinistre', methods: ['PATCH'])]
         public function patch(int $id, Request $request, EntityManagerInterface $em): JsonResponse
         {

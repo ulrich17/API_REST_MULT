@@ -29,9 +29,9 @@ class LoginController extends AbstractController
         if (!$user || !$passwordHasher->isPasswordValid($user, $password)) {
             return new JsonResponse(['message' => 'Identifiants invalides'], 401);
         }
-
+        
         $token = $jwtManager->create($user);
-
+        // en renvoie le token
         return new JsonResponse(['token' => $token]);
     }
 }

@@ -15,8 +15,8 @@
         // Méthode qui permet de créer un utilisateur
         #[Route('/api/v1/users', name:'createUser', methods:['POST'])]
         public function __invoke(
-            UserRepository $userRepository,Request $request, EntityManagerInterface $em, 
-            UserPasswordHasherInterface $UserPasswordHasher
+            Request $request, EntityManagerInterface $em, 
+            UserPasswordHasherInterface $userPasswordHasher
             ): JsonResponse
         {
             $data = json_decode($request->getContent(), true);
@@ -32,7 +32,7 @@
             $user = new User();
             $user->setUsername($data['username']);
             $user->setRoles($roles);
-            $user->setPassword($UserPasswordHasher->hashPassword($data['password']));
+            $user->setPassword($userPasswordHasher->hashPassword($user,$data['password']));
             // On prépare les données à enregistrer dans la base de données
             $em->persist($user);
             // on enregistre dans la base de données.

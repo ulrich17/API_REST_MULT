@@ -13,7 +13,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 #[ORM\Entity(repositoryClass: VehiculeRepository::class)]
 #[UniqueEntity(
     fields: ['immatriculation'], 
-    message: 'Ce véhicule existe déjà'
+    message: 'Ce véhicule existe déjà dans la base de données'
 )]
 class Vehicule
 {
@@ -83,7 +83,7 @@ class Vehicule
 
     public function setImmatriculation(string $immatriculation): static
     {
-        $this->immatriculation = mb_strtoupper(str_replace([' ', '-'], '', $immatriculation));
+        $this->immatriculation =  $immatriculation;
 
         return $this;
     }

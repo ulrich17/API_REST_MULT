@@ -53,7 +53,5 @@
                 'historique_Location' => $historiqueLocation
             ];
         }
-        
     }
-
 ?>

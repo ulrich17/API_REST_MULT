@@ -6,7 +6,6 @@
     class LocationsEncoursService
     {
         public function getLocationsEncours(array $locations): array
-        
         {
             $locationsEncours = []; // Filtrer les locations en cours
             $resultat = [];
@@ -29,6 +28,8 @@
                     
                     $resultat []= [
                     'id' => $value->getId(),
+                    'id vehicule' => $vehicule->getId(),
+                    'id client' => $client->getId(),
                     'Immatriculation du véhicule' => $vehicule->getImmatriculation(),
                     'Marque' => $vehicule->getMarque(),
                     'Modèle' => $vehicule->getModele(),

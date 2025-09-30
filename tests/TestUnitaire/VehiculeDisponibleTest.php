@@ -26,9 +26,6 @@ class VehiculeDisponibleTest extends TestCase
         $vehiculeMock->method('getDateEntree')->willReturn(new \DateTime('2022-01-01'));
         $vehiculeMock->method('getDateSortie')->willReturn(new \DateTime('2023-01-10'));
 
-        // Mock du repository
-        $vehiculeRepositoryMock = $this->createMock(VehiculeRepository::class);
-        $vehiculeRepositoryMock->method('findAll')->willReturn([$vehiculeMock]);
 
         // Act : appel du service pour filtrer les véhicules disponibles
         $service = new VehiculeService();

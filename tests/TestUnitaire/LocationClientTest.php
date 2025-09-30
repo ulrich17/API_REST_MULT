@@ -31,6 +31,7 @@
             // Mock de location
             $locationMock1 = $this->createMock(Location::class);
             $locationMock1->method('getId')->willReturn(1);
+            $locationMock1->method('getClient')->willReturn($clientMock);
             $locationMock1->method('getVehicule')->willReturn($vehiculeMock1);
             $locationMock1->method('getDatedebut')->willReturn(new \DateTime('2023-07-01'));
             $locationMock1->method('getDatefin')->willReturn(new \DateTime('2023-07-10'));
@@ -42,6 +43,7 @@
             $resultat = $service->getLocationClient($locations);
             // Assert : vérification des résultats
             $this->assertCount(1, $resultat);
+            $this->assertEquals(1, $resultat[0]['Client ID']);
             $this->assertEquals('Berline', $resultat[0]['Catégorie']);
             $this->assertEquals('AB-123-CD', $resultat[0]['immatriculation']);
             $this->assertEquals('Toyota', $resultat[0]['Marque']);          

@@ -13,6 +13,7 @@
             foreach($locations as $value){  // On parcours la liste des vehicules loués par un client
                 // on remplit le tableau resultat avec les informations du véhicule et de la location
                 $resultat[] =[
+                    'Client ID' => $value->getClient()->getId(),
                     'Catégorie' => $value->getVehicule()->getCategorieVehicule()->getLibelleCategorie(),
                     'immatriculation' => $value->getVehicule()->getImmatriculation(),
                     'Marque' => $value->getVehicule()->getMarque(),
@@ -23,8 +24,7 @@
                     'Date fin' => $value->getDateFin()->format('d-m-Y')
                 ];
             }
-            // Retourner la liste des véhicules loués par un client
-            return $resultat;
+            return $resultat; // Retourner la liste des véhicules loués par un client
         }
     }
 ?>
